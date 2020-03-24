@@ -10,4 +10,6 @@
     <string name="gender">Gender:</string>
     <string name="male">Male:</string>
     <string name="female">Female:</string>
+    <string name="register">Register</string>
+    <string name="singIn">Sign in</string>
 </resources>
