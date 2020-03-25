@@ -20,7 +20,6 @@ import util.ObjectEncoder;
 
 public class HttpClient {
 
-
     private String REGISTER = "user/register"; // Post, no authToken
     private String LOGIN = "user/login"; // Post, no authToken
     private String CLEAR = "clear"; // Post, no authToken
