@@ -7,7 +7,6 @@ import androidx.fragment.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +21,7 @@ import com.example.familymap.R;
 import com.example.familymap.tasks.LoginTask;
 
 import request.LoginRequest;
+import result.LoginResult;
 
 public class LoginFragment extends Fragment implements LoginTask.Listener {
 
@@ -51,7 +51,7 @@ public class LoginFragment extends Fragment implements LoginTask.Listener {
 
 
     public interface Listener {
-
+        void onLoginComplete();
     }
 
     public LoginFragment() {
@@ -76,6 +76,16 @@ public class LoginFragment extends Fragment implements LoginTask.Listener {
         setFocusChangeListeners();
 
         return v;
+    }
+
+    @Override
+    public void onLoginComplete(LoginResult loginResult) {
+        Toast.makeText(LoginFragment.this.getContext(), "Login Complete", Toast.LENGTH_SHORT);
+//        if(loginResult.getSuccess())
+//
+//        } else {
+//            Toast.makeText(LoginFragment.this.getContext(), "Login Failed", Toast.LENGTH_SHORT);
+//        }
     }
 
     public void checkRegisterButton() {
@@ -349,9 +359,9 @@ public class LoginFragment extends Fragment implements LoginTask.Listener {
 
     public void signInButtonClicked() {
         try {
-            Toast.makeText(
-                    LoginFragment.this.getContext(), "Sign in button clicked", Toast.LENGTH_SHORT
-            ).show();
+//            Toast.makeText(
+//                    LoginFragment.this.getContext(), "Sign in button clicked", Toast.LENGTH_SHORT
+//            ).show();
 
             LoginRequest loginRequest;
             loginRequest = new LoginRequest(userNameEditText.getText().toString(), this.passwordEditText.getText().toString());
@@ -365,9 +375,9 @@ public class LoginFragment extends Fragment implements LoginTask.Listener {
 
     public void registerButtonClicked() {
         try {
-            Toast.makeText(
-                    LoginFragment.this.getContext(), "Register button clicked", Toast.LENGTH_SHORT
-            ).show();
+//            Toast.makeText(
+//                    LoginFragment.this.getContext(), "Register button clicked", Toast.LENGTH_SHORT
+//            ).show();
 
 //            LoginRequest loginRequest;
 //            loginRequest = new LoginRequest(userNameEditText.getText().toString(), this.passwordEditText.getText().toString());

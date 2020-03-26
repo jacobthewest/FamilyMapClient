@@ -24,4 +24,9 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Lis
             .add(R.id.fragmentContainer, fragment).commit();
         }
     }
+
+    @Override
+    public void onLoginComplete() {
+
+    }
 }

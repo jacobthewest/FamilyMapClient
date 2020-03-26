@@ -1,0 +1,15 @@
+apply plugin: 'java-library'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'org.junit.jupiter:junit-jupiter-api:5.5.2'
+    implementation 'org.apiguardian:apiguardian-api:1.1.0'
+    implementation 'org.opentest4j:opentest4j:1.2.0'
+    implementation 'org.junit.platform:junit-platform-commons:1.5.2'
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'org.xerial:sqlite-jdbc:3.8.7'
+    implementation project(path: ':shared')
+}
+
+sourceCompatibility = "7"
+targetCompatibility = "7"

@@ -20,15 +20,15 @@ import util.ObjectEncoder;
 
 public class HttpClient {
 
-    private String REGISTER = "user/register"; // Post, no authToken
-    private String LOGIN = "user/login"; // Post, no authToken
-    private String CLEAR = "clear"; // Post, no authToken
-    private String FILL = "fill"; // Post, no authToken
-    private String LOAD = "load"; // Post, no authToken
-    private String ONE_PERSON = "person/"; // Get, yes authToken
-    private String ALL_PERSONS = "person"; // Get, yes authToken
-    private String ONE_EVENT = "event/"; // Get, yes authToken
-    private String ALL_EVENTS = "event"; // Get, yes authToken
+    private final String REGISTER = "user/register"; // Post, no authToken
+    private final String LOGIN = "user/login"; // Post, no authToken
+    private final String CLEAR = "clear"; // Post, no authToken
+    private final String FILL = "fill"; // Post, no authToken
+    private final String LOAD = "load"; // Post, no authToken
+    private final String ONE_PERSON = "person/"; // Get, yes authToken
+    private final String ALL_PERSONS = "person"; // Get, yes authToken
+    private final String ONE_EVENT = "event/"; // Get, yes authToken
+    private final String ALL_EVENTS = "event"; // Get, yes authToken
 
     private boolean hasRequestBody;
     private HttpURLConnection connection;
@@ -36,23 +36,22 @@ public class HttpClient {
     public LoginResult login(LoginRequest loginRequest) {
         this.hasRequestBody = true;
         LoginResult loginResult = new LoginResult();
-        Object obj = getResult(loginRequest, loginResult, "/user/login", null);
+        Object obj = getResult(loginRequest, loginResult.getClass(), "/user/login", null);
         return (LoginResult) obj;
     }
 
     public RegisterResult register(RegisterRequest registerRequest) {
         this.hasRequestBody = true;
         LoginResult loginResult = new LoginResult();
-        Object obj = getResult(registerRequest, loginResult, "/user/register", null);
+        Object obj = getResult(registerRequest, loginResult.getClass(), "/user/register", null);
         return (RegisterResult) obj;
     }
 
-    public Object getResult(Object request, Object result, String urlPath, AuthToken authToken) {
+    public Object getResult(Object request, Class<?> classType, String urlPath, AuthToken authToken) {
         ObjectEncoder objectEncoder = new ObjectEncoder();
 
         try {
-            connection = getConnection(urlPath, authToken);
-            setRequestMethod(urlPath);
+            setConnection(urlPath, authToken);
             connection.connect();
 
             if(this.hasRequestBody) {
@@ -60,14 +59,15 @@ public class HttpClient {
                 connection.getOutputStream().close();
             }
 
-            return objectEncoder.deserialize(connection.getInputStream(), result.getClass());
+            if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                InputStream is = connection.getInputStream();
+            } else {
+                System.out.println();
+            }
 
-//            if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-//                result = objectEncoder.deserialize(connection.getInputStream(), result.getClass());
-//
-//            } else {
-//                return objectEncoder.deserialize(connection.getInputStream(), result.getClass());
-//            }
+
+            Object returnObject = objectEncoder.deserialize(connection.getInputStream(), classType);
+            return returnObject;
 
         } catch (Exception e) {
             Log.e("HttpClient", e.getMessage(), e);
@@ -76,26 +76,22 @@ public class HttpClient {
         return null;
     }
 
-    public HttpURLConnection getConnection(String urlPath, AuthToken authToken) {
-
-        HttpURLConnection connectionToReturn = null;
+    public void setConnection(String urlPath, AuthToken authToken) {
 
         try {
-            URL url = new URL("http://localhost:8080" + urlPath);
-            connectionToReturn = (HttpURLConnection) url.openConnection();
+            URL url = new URL("http://10.0.2.2:8080" + urlPath); //192.168.1.48
+            connection = (HttpURLConnection) url.openConnection();
             setRequestMethod(urlPath);
+            connection.addRequestProperty("Accept", "application/json");
 
-            connectionToReturn.addRequestProperty("Accept", "application/json");
 
             if(authToken != null) {
-                connectionToReturn.addRequestProperty("Authorization", authToken.getToken());
+                connection.addRequestProperty("Authorization", authToken.getToken());
             }
 
         } catch(IOException e) {
             Log.e("HttpClient", e.getMessage(), e);
         }
-
-        return connectionToReturn;
     }
 
     public String getBase(String urlPath) {
@@ -104,19 +100,24 @@ public class HttpClient {
     }
 
     public void setRequestMethod(String urlPath) throws ProtocolException {
+
         StringBuilder s = new StringBuilder(urlPath);
         s.deleteCharAt(0); // Delete leading "/" from urlPath
         urlPath = s.toString();
 
-        String base = getBase(urlPath);
+        switch (urlPath) {
+            case ALL_EVENTS:
+            case ALL_PERSONS:
+            case ONE_EVENT:
+            case ONE_PERSON:
+                connection.setRequestMethod("GET");
+                connection.setDoOutput(false);
+                break;
+            default:
+                connection.setRequestMethod("POST");
 
-        if(base.equals(LOGIN) || base.equals(REGISTER) || base.equals(CLEAR) ||
-                base.equals(FILL) || base.equals(LOAD)) {
-            connection.setRequestMethod("GET");
-        } else if (base.equals(ALL_EVENTS) || base.equals(ALL_PERSONS)) {
-            connection.setRequestMethod("POST");
-        } else if (base.contains(ONE_EVENT) || base.contains(ONE_PERSON)) {
-            connection.setRequestMethod("POST");
+                connection.setDoOutput(true);
+                break;
         }
     }
 
