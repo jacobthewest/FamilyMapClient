@@ -55,15 +55,9 @@ public class LoginService {
             if(userToVerify == null) {
                 db.closeConnection();
                 return new LoginResult(ApiResult.INTERNAL_SERVER_ERROR,
-                        "User to login was not found in the database.");
+                        "Invalid username and/or password.");
             }
 
-            // Verify if the User's password from the database matches the password from the request
-//            if(userToVerify.getPassword() == null) {
-//                db.closeConnection();
-//                return new LoginResult(ApiResult.REQUEST_PROPERTY_MISSING_OR_INVALID,
-//                        "Provided password does not match password found in database.");
-//            }
             if(!userToVerify.getPassword().equals(password)) {
                 db.closeConnection();
                 return new LoginResult(ApiResult.REQUEST_PROPERTY_MISSING_OR_INVALID,

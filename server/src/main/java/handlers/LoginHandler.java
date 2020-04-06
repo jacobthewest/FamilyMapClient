@@ -25,9 +25,6 @@ public class LoginHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
-        System.out.println(
-                "Login Handler"
-        );
         boolean errorFree = true;
 
         // set the result and service
@@ -47,19 +44,11 @@ public class LoginHandler implements HttpHandler {
 
         // Valid Request. Send the HTTP OK
         if(errorFree) {
-            System.out.println(
-                    "Inside"
-            );
             InputStream inputStream = httpExchange.getRequestBody();
             ObjectEncoder objectEncoder = new ObjectEncoder();
             loginRequest = (LoginRequest) objectEncoder.deserialize(inputStream, LoginRequest.class);
             loginResult = loginService.login(loginRequest);
             httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, RESPONSE_LENGTH);
-//            if(loginResult.getSuccess()) {
-//                httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, RESPONSE_LENGTH);
-//            } else {
-//                httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_BAD_REQUEST, RESPONSE_LENGTH);
-//            }
         }
         try {
             // Serialize the Result Object

@@ -47,11 +47,8 @@ public class RegisterHandler implements HttpHandler {
             ObjectEncoder objectEncoder = new ObjectEncoder();
             registerRequest = (RegisterRequest) objectEncoder.deserialize(inputStream, RegisterRequest.class);
             registerResult = registerService.register(registerRequest);
-            if(registerResult.getSuccess()) {
-                httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, RESPONSE_LENGTH);
-            } else {
-                httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_BAD_REQUEST, RESPONSE_LENGTH);
-            }
+
+            httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, RESPONSE_LENGTH);
         }
         try {
             // Serialize the Result Object

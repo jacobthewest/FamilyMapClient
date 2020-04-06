@@ -15,6 +15,7 @@ import model.AuthToken;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.LoginResult;
+import result.PersonResult;
 import result.RegisterResult;
 import util.ObjectEncoder;
 
@@ -40,14 +41,22 @@ public class HttpClient {
         return (LoginResult) obj;
     }
 
+    public PersonResult getFamily(String authToken) {
+        this.hasRequestBody = false;
+        PersonResult personResult = new PersonResult();
+
+        Object obj = getResult(null, personResult.getClass(), "/person", authToken);
+        return (PersonResult) obj;
+    }
+
     public RegisterResult register(RegisterRequest registerRequest) {
         this.hasRequestBody = true;
-        LoginResult loginResult = new LoginResult();
-        Object obj = getResult(registerRequest, loginResult.getClass(), "/user/register", null);
+        RegisterResult registerResult = new RegisterResult();
+        Object obj = getResult(registerRequest, registerResult.getClass(), "/user/register", null);
         return (RegisterResult) obj;
     }
 
-    public Object getResult(Object request, Class<?> classType, String urlPath, AuthToken authToken) {
+    public Object getResult(Object request, Class<?> classType, String urlPath, String authToken) {
         ObjectEncoder objectEncoder = new ObjectEncoder();
 
         try {
@@ -60,14 +69,8 @@ public class HttpClient {
             }
 
             if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                InputStream is = connection.getInputStream();
-            } else {
-                System.out.println();
+                return objectEncoder.deserialize(connection.getInputStream(), classType);
             }
-
-
-            Object returnObject = objectEncoder.deserialize(connection.getInputStream(), classType);
-            return returnObject;
 
         } catch (Exception e) {
             Log.e("HttpClient", e.getMessage(), e);
@@ -76,7 +79,7 @@ public class HttpClient {
         return null;
     }
 
-    public void setConnection(String urlPath, AuthToken authToken) {
+    public void setConnection(String urlPath, String authToken) {
 
         try {
             URL url = new URL("http://10.0.2.2:8080" + urlPath); //192.168.1.48
@@ -86,17 +89,12 @@ public class HttpClient {
 
 
             if(authToken != null) {
-                connection.addRequestProperty("Authorization", authToken.getToken());
+                connection.addRequestProperty("Authorization", authToken);
             }
 
         } catch(IOException e) {
             Log.e("HttpClient", e.getMessage(), e);
         }
-    }
-
-    public String getBase(String urlPath) {
-        String[] urlParts = urlPath.split("/");
-        return urlParts[0];
     }
 
     public void setRequestMethod(String urlPath) throws ProtocolException {
@@ -120,13 +118,6 @@ public class HttpClient {
                 break;
         }
     }
-
-
-
-
-
-
-
 
     public String getUrl(URL url) {
         try {

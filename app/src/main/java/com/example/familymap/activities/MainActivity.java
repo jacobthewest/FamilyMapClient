@@ -1,32 +1,79 @@
 package com.example.familymap.activities;
 
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.PointerIcon;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import android.os.Bundle;
-
 import com.example.familymap.R;
 import com.example.familymap.fragments.LoginFragment;
+import com.example.familymap.fragments.MapFragment;
+import com.joanzapata.iconify.IconDrawable;
+import com.joanzapata.iconify.Iconify;
+import com.joanzapata.iconify.fonts.FontAwesomeIcons;
+import com.joanzapata.iconify.fonts.FontAwesomeModule;
+
+import model.ProgramMemory;
 
 public class MainActivity extends AppCompatActivity implements LoginFragment.Listener {
+
+    private FragmentManager fm;
+    private Fragment fragment;
+    private ProgramMemory programMemory;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        programMemory = new ProgramMemory();
+
         super.onCreate(savedInstanceState);
+
+        Iconify.with(new FontAwesomeModule());
+
         setContentView(R.layout.activity_main);
 
-        FragmentManager fm = getSupportFragmentManager();
-        Fragment fragment = fm.findFragmentById(R.id.fragmentContainer);
+        this.fm = getSupportFragmentManager();
+        this.fragment = fm.findFragmentById(R.id.fragmentContainer);
 
-        if(fragment == null) {
-            fragment = new LoginFragment();
-            fm.beginTransaction()
-            .add(R.id.fragmentContainer, fragment).commit();
+        if(this.fragment == null) {
+            this.fragment = new LoginFragment(this);
+            this.fm.beginTransaction()
+            .add(R.id.fragmentContainer, this.fragment).commit();
         }
     }
 
     @Override
-    public void onLoginComplete() {
+    public void terminateLoginFragment() {
 
+        programMemory.setLoggedIn(true);
+
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
+        if(fragment != null) {
+            getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+        }
+
+        this.fragment = new MapFragment();
+        this.fm.beginTransaction()
+                .add(R.id.fragmentContainer, this.fragment).commit();
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if(programMemory.isLoggedIn()) {
+            getMenuInflater().inflate(R.menu.menu_main, menu);
+
+            MenuItem search = menu.findItem(R.id.search);
+            MenuItem settings = menu.findItem(R.id.settings);
+
+            search.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_search).colorRes(R.color.colorPrimaryDark).actionBarSize());
+            settings.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_gear).colorRes(R.color.colorPrimaryDark).actionBarSize());
+        }
+
+        return true;
+    }
+
 }

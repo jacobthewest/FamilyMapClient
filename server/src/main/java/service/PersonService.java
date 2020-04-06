@@ -164,8 +164,11 @@ public class PersonService {
                 return new PersonResult(ApiResult.INVALID_AUTH_TOKEN); //, "Array of Persons returned from authToken is null."
             }
 
+            PersonResult personResult = new PersonResult(personArray);
+            personResult.setAssociatedUsername(returnedAuthToken.getUserName());
+
             // Close db connection and return
-            return new PersonResult(personArray);
+            return personResult;
 
         } catch(DatabaseException e) {
             return new PersonResult(ApiResult.INTERNAL_SERVER_ERROR); //, e.getMessage()

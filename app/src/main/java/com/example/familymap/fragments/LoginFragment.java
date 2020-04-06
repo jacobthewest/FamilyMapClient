@@ -18,12 +18,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.familymap.R;
+import com.example.familymap.tasks.FamilyRetrievalTask;
 import com.example.familymap.tasks.LoginTask;
+import com.example.familymap.tasks.RegisterTask;
 
+import java.util.UUID;
+
+import model.Person;
+import model.User;
 import request.LoginRequest;
+import request.RegisterRequest;
 import result.LoginResult;
+import result.PersonResult;
+import result.RegisterResult;
 
-public class LoginFragment extends Fragment implements LoginTask.Listener {
+public class LoginFragment extends Fragment
+        implements LoginTask.Listener, FamilyRetrievalTask.Listener, RegisterTask.Listener {
 
     private TextView serverHostTextView;
     private TextView serverPortTextView;
@@ -49,13 +59,17 @@ public class LoginFragment extends Fragment implements LoginTask.Listener {
     private Button signInButton;
     private Button registerButton;
 
-
-    public interface Listener {
-        void onLoginComplete();
-    }
+    private Listener listener;
 
     public LoginFragment() {
         // Required empty public constructor
+    }
+
+    public LoginFragment(LoginFragment.Listener listener) {this.listener = listener;}
+
+
+    public interface Listener {
+        void terminateLoginFragment();
     }
 
     @Override
@@ -80,12 +94,63 @@ public class LoginFragment extends Fragment implements LoginTask.Listener {
 
     @Override
     public void onLoginComplete(LoginResult loginResult) {
-        Toast.makeText(LoginFragment.this.getContext(), "Login Complete", Toast.LENGTH_SHORT);
-//        if(loginResult.getSuccess())
-//
-//        } else {
-//            Toast.makeText(LoginFragment.this.getContext(), "Login Failed", Toast.LENGTH_SHORT);
-//        }
+        if(!loginResult.getSuccess()) {
+
+            Toast.makeText(
+                    LoginFragment.this.getContext(),
+                    "Login failed: " + loginResult.getDescription(),
+                    Toast.LENGTH_LONG
+            ).show();
+        } else {
+            // Successful login. Retrieve the family data of the user logging in.
+            retrieveFamilyData(loginResult.getToken(), loginResult.getUserName());
+            goToMapFragment();
+        }
+    }
+
+    @Override
+    public void onFamilyRetrievalComplete(PersonResult personResult) {
+        processPersonResult(personResult);
+    }
+
+    @Override
+    public void onRegisterComplete(RegisterResult registerResult) {
+        if(!registerResult.getSuccess()) {
+            Toast.makeText(
+                    LoginFragment.this.getContext(),
+                    "Login failed: " + registerResult.getDescription(),
+                    Toast.LENGTH_LONG
+            ).show();
+        } else {
+            // Successful login. Retrieve the family data of the user logging in.
+            retrieveFamilyData(registerResult.getToken(), registerResult.getUserName());
+            goToMapFragment();
+        }
+    }
+
+    public void goToMapFragment() {
+        this.listener.terminateLoginFragment();
+    }
+
+    public void processPersonResult(PersonResult personResult) {
+        if(!personResult.getSuccess()) {return;}
+        Person[] data = personResult.getData();
+
+        int length = data.length;
+
+        String userName = personResult.getAssociatedUsername();
+        String firstName = "";
+        String lastName = "";
+
+        for(int i = 0; i < data.length; i++) {
+            if(data[i].getAssociatedUsername().equals(userName)) {
+                firstName = data[i].getFirstName();
+                lastName = data[i].getLastName();
+                i = data.length;
+            }
+        }
+
+        //Toast.makeText(LoginFragment.this.getContext(), firstName + " " + lastName, Toast.LENGTH_LONG).show();
     }
 
     public void checkRegisterButton() {
@@ -357,17 +422,46 @@ public class LoginFragment extends Fragment implements LoginTask.Listener {
         registerButton = (Button)v.findViewById(R.id.registerButton);
     }
 
+    public User getUserFromInput() {
+
+        // PersonID just needs to NOT be null for the request to work
+
+        String userName = this.userNameEditText.getText().toString();
+        String password = this.passwordEditText.getText().toString();
+        String email = this.emailEditText.getText().toString();
+        String firstName = this.firstNameEditText.getText().toString();
+        String lastName = this.lastNameEditText.getText().toString();
+
+        String gender = null;
+        if(this.maleRadioButton.isChecked()) {
+            gender = "m";
+        } else if (this.femaleRadioButton.isChecked()) {
+            gender = "m";
+        }
+
+        // This personID just has to be NOT NULL for the registerRequest to work
+        String personID = UUID.randomUUID().toString();
+
+        return new User(userName, password, email, firstName, lastName, gender, personID);
+    }
+
     public void signInButtonClicked() {
         try {
-//            Toast.makeText(
-//                    LoginFragment.this.getContext(), "Sign in button clicked", Toast.LENGTH_SHORT
-//            ).show();
-
             LoginRequest loginRequest;
             loginRequest = new LoginRequest(userNameEditText.getText().toString(), this.passwordEditText.getText().toString());
 
-            new LoginTask(this).execute(loginRequest);
+            LoginTask loginTask = new LoginTask(this);
+            loginTask.execute(loginRequest);
 
+        } catch(Exception e) {
+            Log.e("LoginFragment", e.getMessage(), e);
+        }
+    }
+
+    public void retrieveFamilyData(String authToken, String userName) {
+        try {
+            FamilyRetrievalTask familyRetrievalTask = new FamilyRetrievalTask( this, authToken, userName);
+            familyRetrievalTask.execute();
         } catch(Exception e) {
             Log.e("LoginFragment", e.getMessage(), e);
         }
@@ -375,14 +469,12 @@ public class LoginFragment extends Fragment implements LoginTask.Listener {
 
     public void registerButtonClicked() {
         try {
-//            Toast.makeText(
-//                    LoginFragment.this.getContext(), "Register button clicked", Toast.LENGTH_SHORT
-//            ).show();
+            RegisterRequest registerRequest;
+            User user = getUserFromInput();
+            registerRequest = new RegisterRequest(user);
 
-//            LoginRequest loginRequest;
-//            loginRequest = new LoginRequest(userNameEditText.getText().toString(), this.passwordEditText.getText().toString());
-//
-//            new LoginTask(this).execute(loginRequest);
+            RegisterTask registerTask = new RegisterTask(this);
+            registerTask.execute(registerRequest);
 
         } catch(Exception e) {
             Log.e("LoginFragment", e.getMessage(), e);
