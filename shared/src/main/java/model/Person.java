@@ -12,6 +12,7 @@ public class Person {
     private String fatherID;
     private String motherID;
     private String spouseID;
+    private String relationship;
 
     /**
      * Creates a Person
@@ -46,6 +47,14 @@ public class Person {
     public Person(String personID, String associatedUsername) {
         setPersonID(personID);
         setAssociatedUsername(associatedUsername);
+    }
+
+    public void setRelationship(String realtionship) {
+        this.relationship = relationship;
+    }
+
+    public String getRelationship() {
+        return this.relationship;
     }
 
     public String getPersonID() {return personID;}
