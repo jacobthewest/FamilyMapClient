@@ -63,11 +63,8 @@ public class FillHandler implements HttpHandler {
                 int generations = getGenerations(httpExchange);
                 fillResult = fillService.fill(username, generations);
             }
-            if(fillResult.getSuccess()) {
-                httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, RESPONSE_LENGTH);
-            } else {
-                httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_BAD_REQUEST, RESPONSE_LENGTH);
-            }
+
+            httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, RESPONSE_LENGTH);
         }
         try {
             // Serialize the Result Object

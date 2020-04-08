@@ -55,7 +55,7 @@ public class LoginService {
             if(userToVerify == null) {
                 db.closeConnection();
                 return new LoginResult(ApiResult.INTERNAL_SERVER_ERROR,
-                        "Invalid username and/or password.");
+                        "Provided username or password is not found in the database.");
             }
 
             if(!userToVerify.getPassword().equals(password)) {

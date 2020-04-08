@@ -2,44 +2,79 @@ package model;
 
 public class ProgramMemory {
 
+    private static ProgramMemory instance;
+
+    public static ProgramMemory instance() {
+        if(instance == null) {
+            instance = new ProgramMemory();
+        }
+        return instance;
+    }
+
     private boolean isLoggedIn;
-    private User[] users;
+    private Person selfPerson;
     private Person[] persons;
     private Event[] events;
+    private String[] eventTypes;
+    private String username;
 
 
     public ProgramMemory() {}
+
+    public void loadLoginData(boolean isLoggedIn, Person selfPerson, Person[] persons,
+                              Event[] events, String username) {
+        this.isLoggedIn = isLoggedIn;
+        this.selfPerson = selfPerson;
+        this.persons = persons;
+        this.events = events;
+        this.username = username;
+    }
 
     public boolean isLoggedIn() {
         return isLoggedIn;
     }
 
-    public User[] getUsers() {
-        return this.users;
+    public void setLoggedIn(boolean loggedIn) {
+        isLoggedIn = loggedIn;
     }
 
-    public Event[] getEvents() {
-        return this.events;
+    public Person getSelfPerson() {
+        return selfPerson;
+    }
+
+    public void setSelfPerson(Person selfPerson) {
+        this.selfPerson = selfPerson;
     }
 
     public Person[] getPersons() {
-        return this.persons;
-    }
-
-
-    public void setUsers(User[] users) {
-        this.users = users;
+        return persons;
     }
 
     public void setPersons(Person[] persons) {
         this.persons = persons;
     }
 
+    public void setEventTypes(String[] eventTypes) {
+        this.eventTypes = eventTypes;
+    }
+
+    public Event[] getEvents() {
+        return events;
+    }
+
     public void setEvents(Event[] events) {
         this.events = events;
     }
 
-    public void setLoggedIn(boolean loggedIn) {
-        isLoggedIn = loggedIn;
+    public String[] getEventTypes() {
+        return this.eventTypes;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

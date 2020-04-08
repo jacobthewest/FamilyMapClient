@@ -24,12 +24,10 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Lis
 
     private FragmentManager fm;
     private Fragment fragment;
-    private ProgramMemory programMemory;
+    private ProgramMemory programMemory = ProgramMemory.instance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        programMemory = new ProgramMemory();
-
         super.onCreate(savedInstanceState);
 
         Iconify.with(new FontAwesomeModule());
@@ -49,8 +47,6 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Lis
     @Override
     public void terminateLoginFragment() {
 
-        programMemory.setLoggedIn(true);
-
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
         if(fragment != null) {
             getSupportFragmentManager().beginTransaction().remove(fragment).commit();
@@ -63,17 +59,16 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Lis
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if(programMemory.isLoggedIn()) {
+        if(this.programMemory.isLoggedIn()) {
             getMenuInflater().inflate(R.menu.menu_main, menu);
 
             MenuItem search = menu.findItem(R.id.search);
             MenuItem settings = menu.findItem(R.id.settings);
 
-            search.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_search).colorRes(R.color.colorPrimaryDark).actionBarSize());
-            settings.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_gear).colorRes(R.color.colorPrimaryDark).actionBarSize());
+            search.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_search).colorRes(R.color.white).actionBarSize());
+            settings.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_gear).colorRes(R.color.white).actionBarSize());
         }
 
         return true;
     }
-
 }

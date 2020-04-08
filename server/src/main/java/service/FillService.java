@@ -160,7 +160,13 @@ public class FillService {
     private void setCities() {
         String[] cities = new String[]{"Boise", "Salt Lake City", "Ogden", "Orem", "Provo", "Saint George",
                 "Twin Falls", "Rigby", "Jerome", "Fillmore", "Beaver", "Logan", "Brigham City", "Burley", "Rupert", "Rexburg", "Santaquin",
-                "Tooele", "Sandy", "Riverton", "Nephi", "Delta", "Emery", "Price", "Spanish Fork", "West Valley City", "Moab"};
+                "Tooele", "Sandy", "Riverton", "Nephi", "Delta", "Emery", "Price", "Spanish Fork", "West Valley City", "Moab",
+        "Auburn", "Jamestown", "Fulton", "Bedford", "Stuart", "San Angelo", "Woodbridge", "Vista", "South Bend", "Davenport", "Sparks",
+                "Green Bay", "San Mateo", "Tyler", "League City", "Lewisville", "Waterbury", "Jurupa Valley", "West Palm Beach", "Antioch",
+        "High Point", "Miami Gardens", "Murrieta", "Springfield", "El Monte", "College Station", "Richardson", "Berkeley", "Columbia",
+        "Athens", "Lafayette", "Hampton", "Pasadena", "Paterson", "Rockford", "Joliet", "Kansas City", "Vancouver", "Tallahassee", "Columbus",
+        "Amarillo", "Irvine", "Arlington", "Memphis", "Indianapolis", "Dallas", "Gastonia", "Forestville", "Houston", "Yuma", "Tempe", "Peoria",
+        "Bloomington", "Utqiagvik", "Fargo"};
         for(String singleCity: cities) {
             this.CITIES.add(singleCity);
         }
@@ -184,7 +190,14 @@ public class FillService {
         double[] latitudes = new double[]{43.615791, 40.760780, 41.222759, 40.297119, 40.233845,
                 37.108284, 42.563181, 43.672219, 42.724137, 38.96675, 38.279582, 41.735211, 41.510372, 42.538116,
                 42.616386, 43.826071, 39.97558, 40.534265, 40.569705, 40.518701, 39.71002, 39.352381, 38.923149,
-                39.599506, 40.115007, 40.696682, 38.571738};
+                39.599506, 40.115007, 40.696682, 38.571738, 42.933334, 42.095554, 38.846668, 41.392502,
+                27.192223, 31.442778, 40.560001, 33.193611, 41.676388, 41.543056, 39.554443, 44.513332, 37.554169,
+                32.349998, 29.499722, 33.038334, 41.556110, 34.000000, 26.709723, 38.005001, 35.970554, 25.942122,
+                -80.269920, 39.799999, 34.073334, 30.601389, 32.965557, 37.871666, 38.951561, 33.950001, 30.216667,
+                37.034946, 34.156113, 40.914745, 42.259445, 41.520557, 39.106667, 45.633331, 30.455000, 32.492222,
+                35.199165, 33.669445, 32.705002, 35.117500, 39.791000, 32.779167, 35.255280, 38.473625, 29.749907,
+                32.698437,33.427204, 33.580944, 44.840797, 71.290558, 46.877186
+        };
         for(double singleLat: latitudes) {
             this.LATITUDES.add(singleLat);
         }
@@ -198,7 +211,14 @@ public class FillService {
         double[] longitudes = new double[]{-116.201576, -111.891045, -111.970421, -111.695007, -111.658531,
                 -113.583277, -114.460278, -111.914829, -114.518435, -112.323686, -112.641291, -111.834857, -112.015716, -113.793261,
                 -113.67082, -111.789532,  -111.785249, -112.298452, -111.897282, -111.931665, -111.828546, -112.57362, -111.250477,
-                -110.811215, -111.654713, -111.959172, -109.550796};
+                -110.811215, -111.654713, -111.959172, -109.550796, -76.566666, -79.238609, -91.948059, -81.534447,
+                -80.243057, -100.450279, -74.290001, -117.241112, -86.250275, -90.590836, -119.735558, -88.015831, -122.313057,
+                -95.300003, -95.089722, -97.006111, -73.041389, -117.483330, -80.064163, -121.805832, -79.997498, -80.269920,
+                -117.202499, -89.650002, -118.027496, -96.314445, -96.715836, -122.272781, -92.328636, -83.383331, -92.033333,
+                -76.360123, -118.131943, -74.162827, -89.064445, -88.150558, -94.676392, -122.599998, -84.253334, -84.940277,
+                -101.845276, -117.823059, -97.122780, -89.971107, -86.148003, -96.808891, -81.180275, -122.889992, -95.358421,
+                -114.650398, -111.939896, -112.237068, -93.298279, -156.788605, -96.789803
+        };
         for(double singleLong: longitudes) {
             this.LONGITUDES.add(singleLong);
         }
@@ -368,7 +388,7 @@ public class FillService {
         // For the test cases the parents are always dead.
         // MAX_DEATH_AGE - currentParentAge. I do this so the parent dies at 120 or under.
         int deathYear = marriageYear + random.nextInt(MAX_DEATH_AGE - parentAgeAtMarriage);
-        Event death = createEvent("death", deathYear, parent);
+        Event death = createEvent("Death", deathYear, parent);
         this.generatedEvents.add(death);
 
         return birthYear;
