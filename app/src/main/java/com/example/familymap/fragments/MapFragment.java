@@ -1,31 +1,52 @@
 package com.example.familymap.fragments;
 
-import android.content.ClipData;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.familymap.R;
+import com.example.familymap.activities.PersonActivity;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback {
+
+import model.Event;
+import model.Person;
+import model.ProgramMemory;
+
+
+public class MapFragment extends Fragment
+        implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback,
+        GoogleMap.OnMarkerClickListener, View.OnClickListener {
     private GoogleMap map;
     private View view;
+    private ProgramMemory programMemory = ProgramMemory.instance();
+    private Person personInFocus;
+    private Event eventInFocus;
+
+    public MapFragment() {
+        // Required empty public constructor
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -38,7 +59,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         super.onCreateView(layoutInflater, container, savedInstanceState);
         this.view = layoutInflater.inflate(R.layout.fragment_map, container, false);
 
-        initializeIcons();
+        initializeViews();
+        setListeners();
 
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -46,16 +68,192 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         return view;
     }
 
+    public void setListeners() {
+        // Set a listener for marker click
+
+        LinearLayout linearLayout = this.view.findViewById(R.id.personDetailsOnMap);
+        linearLayout.setOnClickListener(this);
+    }
+
+    public void setAllMarkers() {
+
+        Event userBirth = getUsersBirth();
+
+        Event[] events = programMemory.getEvents();
+        for(Event singleEvent: events) {
+            double lat = singleEvent.getLatitude();
+            double lon = singleEvent.getLongitude();
+            LatLng eventLocation = new LatLng(lat, lon);
+
+            addMarker(eventLocation, singleEvent);
+
+            if(singleEvent.equals(userBirth)) {
+                focusOnUserBirth(eventLocation);
+            }
+        }
+    }
+
+    public void addMarker(LatLng eventLocation, Event singleEvent) {
+
+        float markerColor = getMarkerColor(singleEvent);
+
+
+        Marker tempMarker = map.addMarker(
+                new MarkerOptions()
+                        .position(eventLocation)
+                .icon(BitmapDescriptorFactory.defaultMarker(markerColor))
+        );
+
+
+        //tempMarker.setIcon(BitmapDescriptorFactory.defaultMarker(markerColor));
+        tempMarker.setTag(singleEvent.getEventID());
+
+    }
+
+    public float getMarkerColor(Event singleEvent) {
+        String eventType = singleEvent.getEventType();
+        String[] eventTypes = programMemory.getEventTypes();
+
+        int numOfColors = 10;
+
+
+        boolean colorNumFound = false;
+        int i = 0;
+        int colorIndex = 0;
+
+        while(!colorNumFound) {
+            if(eventType.equals(eventTypes[i])) {
+                colorIndex = i;
+                colorNumFound = true;
+            } else if (i >= numOfColors && eventType.equals(eventTypes[i])) {
+                colorIndex = i % numOfColors;
+                colorNumFound = true;
+            }
+            i++;
+        }
+
+        switch (colorIndex) {
+            case 0:
+                return BitmapDescriptorFactory.HUE_RED;
+            case 1:
+                return BitmapDescriptorFactory.HUE_BLUE;
+            case 2:
+                return BitmapDescriptorFactory.HUE_VIOLET;
+            case 3:
+                return BitmapDescriptorFactory.HUE_GREEN;
+            case 4:
+                return BitmapDescriptorFactory.HUE_MAGENTA;
+            case 5:
+                return BitmapDescriptorFactory.HUE_ORANGE;
+            case 6:
+                return BitmapDescriptorFactory.HUE_AZURE;
+            case 7:
+                return BitmapDescriptorFactory.HUE_ROSE;
+            case 8:
+                return BitmapDescriptorFactory.HUE_CYAN;
+            default:
+                return BitmapDescriptorFactory.HUE_YELLOW;
+        }
+    }
+
+    /** Called when the user clicks a marker. */
+    @Override
+    public boolean onMarkerClick(final Marker marker) {
+
+        // Retrieve the data from the marker.
+        //Integer eventIdAsInt = (Integer) marker.getTag();
+        String eventId = marker.getTag().toString();
+
+        Event clickedEvent = getEventByID(eventId);
+        Person tempPerson = getPersonByPersonID(clickedEvent.getPersonID());
+
+        this.eventInFocus = clickedEvent;
+        this.personInFocus = tempPerson;
+
+        Drawable genderIcon;
+        if(tempPerson.getGender().equals("m")) {
+            genderIcon = new IconDrawable(getActivity(),
+                    FontAwesomeIcons.fa_male).colorRes(R.color.male_icon).sizeDp(5);
+        } else {
+            genderIcon = new IconDrawable(getActivity(),
+                    FontAwesomeIcons.fa_female).colorRes(R.color.female_icon).sizeDp(5);
+        }
+
+        ImageView iv = this.view.findViewById(R.id.genderIcon);
+        iv.setImageDrawable(genderIcon);
+
+        TextView textView1 = this.view.findViewById(R.id.eventPersonName);
+        textView1.setText(tempPerson.getFirstName() + " " + tempPerson.getLastName());
+
+        TextView textView2 = this.view.findViewById(R.id.event_details);
+        textView2.setText(
+                clickedEvent.getEventType().toUpperCase() + ": "
+                + clickedEvent.getCity() + ", " + clickedEvent.getCountry()
+                + " (" + clickedEvent.getYear() + ")"
+        );
+
+
+        // Return false to indicate that we have not consumed the event and that we wish
+        // for the default behavior to occur (which is for the camera to move such that the
+        // marker is centered and for the marker's info window to open, if it has one).
+        return false;
+    }
+
+    public Person getPersonByPersonID(String personID) {
+        for(Person singlePerson: programMemory.getPersons()) {
+            if(singlePerson.getPersonID().equals(personID)) {
+                return singlePerson;
+            }
+        }
+        return null;
+    }
+
+    public Event getEventByID(String eventID) {
+        for(Event singleEvent: programMemory.getEvents()) {
+            if(singleEvent.getEventID().equals(eventID)) {
+                return singleEvent;
+            }
+        }
+        return null;
+    }
+
+    public Event getUsersBirth() {
+        Event[] events = programMemory.getEvents();
+        Person selfPerson = programMemory.getSelfPerson();
+
+        for(Event singleEvent: events) {
+            if(singleEvent.getPersonID().equals(selfPerson.getPersonID()) &&
+                    singleEvent.getEventType().equals("Birth")) {
+                    return singleEvent;
+            }
+        }
+        return null;
+    }
+
+    public void focusOnUserBirth(LatLng eventLocation) {
+
+        //map.animateCamera(CameraUpdateFactory.newLatLng(eventLocation));
+        CameraPosition cameraPosition = new CameraPosition.Builder().target(eventLocation).zoom(3).build();
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
+        //map.moveCamera(cameraUpdate);
+        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+    }
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         map.setOnMapLoadedCallback(this);
+        map.setOnMarkerClickListener(this);
     }
 
-    private void initializeIcons() {
-        Drawable genderIcon = new IconDrawable(getActivity(), FontAwesomeIcons.fa_male).colorRes(R.color.male_icon).sizeDp(20);
-        ImageView iv = this.view.findViewById(R.id.test);
+    private void initializeViews() {
+//        Drawable genderIcon = new IconDrawable(getActivity(), FontAwesomeIcons.fa_male).colorRes(R.color.male_icon).sizeDp(5);
+//        ImageView iv = this.view.findViewById(R.id.genderIcon);
+//        iv.setImageDrawable(genderIcon);
+
+        Drawable genderIcon = new IconDrawable(getActivity(), FontAwesomeIcons.fa_android).colorRes(R.color.android_green).sizeDp(5);
+        ImageView iv = this.view.findViewById(R.id.genderIcon);
         iv.setImageDrawable(genderIcon);
     }
 
@@ -66,12 +264,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         // onMapReady(...) because the map isn't really all the way ready. If you see that, just
         // move all code where you interact with the map (everything after
         // map.setOnMapLoadedCallback(...) above) to here.
-
-
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        map.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        map.animateCamera(CameraUpdateFactory.newLatLng(sydney));
+        setAllMarkers();
     }
 
+    @Override
+    public void onClick(View v) {
+        Intent intent = new Intent(getActivity(), PersonActivity.class);
+
+        String personID = personInFocus.getPersonID();
+
+        intent.putExtra(PersonActivity.EXTRA_PERSON_ID, personID);
+        startActivity(intent);
+    }
 }

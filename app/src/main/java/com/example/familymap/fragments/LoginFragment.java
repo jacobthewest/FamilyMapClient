@@ -18,22 +18,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.familymap.R;
-import com.example.familymap.tasks.FamilyRetrievalTask;
+import com.example.familymap.tasks.GetDataTask;
 import com.example.familymap.tasks.LoginTask;
 import com.example.familymap.tasks.RegisterTask;
 
 import java.util.UUID;
 
-import model.Person;
+import model.ProgramMemory;
 import model.User;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.LoginResult;
-import result.PersonResult;
 import result.RegisterResult;
 
 public class LoginFragment extends Fragment
-        implements LoginTask.Listener, FamilyRetrievalTask.Listener, RegisterTask.Listener {
+        implements LoginTask.Listener, GetDataTask.Listener, RegisterTask.Listener {
 
     private TextView serverHostTextView;
     private TextView serverPortTextView;
@@ -59,6 +58,7 @@ public class LoginFragment extends Fragment
     private Button signInButton;
     private Button registerButton;
 
+    private ProgramMemory programMemory = ProgramMemory.instance();
     private Listener listener;
 
     public LoginFragment() {
@@ -103,14 +103,14 @@ public class LoginFragment extends Fragment
             ).show();
         } else {
             // Successful login. Retrieve the family data of the user logging in.
-            retrieveFamilyData(loginResult.getToken(), loginResult.getUserName());
+            retrieveProgramData(loginResult.getToken(), loginResult.getUserName());
             goToMapFragment();
         }
     }
 
     @Override
-    public void onFamilyRetrievalComplete(PersonResult personResult) {
-        processPersonResult(personResult);
+    public void onGetDataComplete() {
+        processPersonResult();
     }
 
     @Override
@@ -123,7 +123,7 @@ public class LoginFragment extends Fragment
             ).show();
         } else {
             // Successful login. Retrieve the family data of the user logging in.
-            retrieveFamilyData(registerResult.getToken(), registerResult.getUserName());
+            retrieveProgramData(registerResult.getToken(), registerResult.getUserName());
             goToMapFragment();
         }
     }
@@ -132,25 +132,8 @@ public class LoginFragment extends Fragment
         this.listener.terminateLoginFragment();
     }
 
-    public void processPersonResult(PersonResult personResult) {
-        if(!personResult.getSuccess()) {return;}
-        Person[] data = personResult.getData();
-
-        int length = data.length;
-
-        String userName = personResult.getAssociatedUsername();
-        String firstName = "";
-        String lastName = "";
-
-        for(int i = 0; i < data.length; i++) {
-            if(data[i].getAssociatedUsername().equals(userName)) {
-                firstName = data[i].getFirstName();
-                lastName = data[i].getLastName();
-                i = data.length;
-            }
-        }
-
-        //Toast.makeText(LoginFragment.this.getContext(), firstName + " " + lastName, Toast.LENGTH_LONG).show();
+    public void processPersonResult() {
+        //Toast.makeText(LoginFragment.this.getContext(), programMemory.getSelfPerson().getFirstName() + " " + programMemory.getSelfPerson().getLastName(), Toast.LENGTH_LONG).show();
     }
 
     public void checkRegisterButton() {
@@ -458,10 +441,10 @@ public class LoginFragment extends Fragment
         }
     }
 
-    public void retrieveFamilyData(String authToken, String userName) {
+    public void retrieveProgramData(String authToken, String userName) {
         try {
-            FamilyRetrievalTask familyRetrievalTask = new FamilyRetrievalTask( this, authToken, userName);
-            familyRetrievalTask.execute();
+            GetDataTask getDataTask = new GetDataTask( this, authToken, userName);
+            getDataTask.execute();
         } catch(Exception e) {
             Log.e("LoginFragment", e.getMessage(), e);
         }

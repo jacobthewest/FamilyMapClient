@@ -5,4 +5,6 @@
     <color name="colorAccent">#D81B60</color>
     <color name="male_icon">#0001F6</color>
     <color name="female_icon">#F903FB</color>
+    <color name="white">#FFFFFF</color>
+    <color name="android_green">#a4c639</color>
 </resources>

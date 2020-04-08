@@ -14,6 +14,7 @@ import java.net.URL;
 import model.AuthToken;
 import request.LoginRequest;
 import request.RegisterRequest;
+import result.EventResult;
 import result.LoginResult;
 import result.PersonResult;
 import result.RegisterResult;
@@ -47,6 +48,14 @@ public class HttpClient {
 
         Object obj = getResult(null, personResult.getClass(), "/person", authToken);
         return (PersonResult) obj;
+    }
+
+    public EventResult getEvents(String authToken) {
+        this.hasRequestBody = false;
+        EventResult eventResult = new EventResult();
+
+        Object obj = getResult(null, eventResult.getClass(), "/event", authToken);
+        return (EventResult) obj;
     }
 
     public RegisterResult register(RegisterRequest registerRequest) {
