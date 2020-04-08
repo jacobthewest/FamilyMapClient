@@ -1,13 +1,12 @@
 package com.example.familymap.fragments;
 
 import android.graphics.drawable.Drawable;
-import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
-import android.provider.CalendarContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,7 +18,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -28,7 +26,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 
-import java.lang.reflect.Array;
+
+import org.w3c.dom.Text;
 
 import model.Event;
 import model.Person;
@@ -158,22 +157,44 @@ public class MapFragment extends Fragment
 
         Event clickedEvent = getEventByID(eventId);
 
-        Toast.makeText(this.getActivity(), clickedEvent.getEventType(), Toast.LENGTH_SHORT).show();
+        Person tempPerson = getPersonByPersonID(clickedEvent.getPersonID());
 
-//        // Check if a click count was set, then display the click count.
-//        if (clickCount != null) {
-//            clickCount = clickCount + 1;
-//            marker.setTag(clickCount);
-//            Toast.makeText(this.getActivity(),
-//                    marker.getTitle() +
-//                            " has been clicked " + clickCount + " times.",
-//                    Toast.LENGTH_SHORT).show();
-//        }
+        Drawable genderIcon;
+        if(tempPerson.getGender().equals("m")) {
+            genderIcon = new IconDrawable(getActivity(),
+                    FontAwesomeIcons.fa_male).colorRes(R.color.male_icon).sizeDp(5);
+        } else {
+            genderIcon = new IconDrawable(getActivity(),
+                    FontAwesomeIcons.fa_female).colorRes(R.color.female_icon).sizeDp(5);
+        }
+
+        ImageView iv = this.view.findViewById(R.id.genderIcon);
+        iv.setImageDrawable(genderIcon);
+
+        TextView textView1 = this.view.findViewById(R.id.eventPersonName);
+        textView1.setText(tempPerson.getFirstName() + " " + tempPerson.getLastName());
+
+        TextView textView2 = this.view.findViewById(R.id.event_details);
+        textView2.setText(
+                clickedEvent.getEventType().toUpperCase() + ": "
+                + clickedEvent.getCity() + ", " + clickedEvent.getCountry()
+                + " (" + clickedEvent.getYear() + ")"
+        );
+
 
         // Return false to indicate that we have not consumed the event and that we wish
         // for the default behavior to occur (which is for the camera to move such that the
         // marker is centered and for the marker's info window to open, if it has one).
         return false;
+    }
+
+    public Person getPersonByPersonID(String personID) {
+        for(Person singlePerson: programMemory.getPersons()) {
+            if(singlePerson.getPersonID().equals(personID)) {
+                return singlePerson;
+            }
+        }
+        return null;
     }
 
     public Event getEventByID(String eventID) {
@@ -223,9 +244,6 @@ public class MapFragment extends Fragment
         Drawable genderIcon = new IconDrawable(getActivity(), FontAwesomeIcons.fa_android).colorRes(R.color.android_green).sizeDp(5);
         ImageView iv = this.view.findViewById(R.id.genderIcon);
         iv.setImageDrawable(genderIcon);
-
-
-
     }
 
     @Override
