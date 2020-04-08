@@ -30,6 +30,15 @@ public class ProgramMemory {
         this.username = username;
     }
 
+    public Person getPersonById(String personID) {
+        if(this.persons == null || this.persons.length == 0) { return null; }
+
+        for(Person singlePerson: this.persons) {
+            if(singlePerson.getPersonID().equals(personID)) return singlePerson;
+        }
+        return null;
+    }
+
     public boolean isLoggedIn() {
         return isLoggedIn;
     }

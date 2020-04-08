@@ -1,11 +1,13 @@
 package com.example.familymap.fragments;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.familymap.R;
+import com.example.familymap.activities.PersonActivity;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,18 +30,19 @@ import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 
 
-import org.w3c.dom.Text;
-
 import model.Event;
 import model.Person;
 import model.ProgramMemory;
 
 
 public class MapFragment extends Fragment
-        implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback, GoogleMap.OnMarkerClickListener {
+        implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback,
+        GoogleMap.OnMarkerClickListener, View.OnClickListener {
     private GoogleMap map;
     private View view;
     private ProgramMemory programMemory = ProgramMemory.instance();
+    private Person personInFocus;
+    private Event eventInFocus;
 
     public MapFragment() {
         // Required empty public constructor
@@ -56,11 +60,19 @@ public class MapFragment extends Fragment
         this.view = layoutInflater.inflate(R.layout.fragment_map, container, false);
 
         initializeViews();
+        setListeners();
 
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         return view;
+    }
+
+    public void setListeners() {
+        // Set a listener for marker click
+
+        LinearLayout linearLayout = this.view.findViewById(R.id.personDetailsOnMap);
+        linearLayout.setOnClickListener(this);
     }
 
     public void setAllMarkers() {
@@ -79,9 +91,6 @@ public class MapFragment extends Fragment
                 focusOnUserBirth(eventLocation);
             }
         }
-
-        // Set a listener for marker click.
-        map.setOnMarkerClickListener(this);
     }
 
     public void addMarker(LatLng eventLocation, Event singleEvent) {
@@ -156,8 +165,10 @@ public class MapFragment extends Fragment
         String eventId = marker.getTag().toString();
 
         Event clickedEvent = getEventByID(eventId);
-
         Person tempPerson = getPersonByPersonID(clickedEvent.getPersonID());
+
+        this.eventInFocus = clickedEvent;
+        this.personInFocus = tempPerson;
 
         Drawable genderIcon;
         if(tempPerson.getGender().equals("m")) {
@@ -256,6 +267,13 @@ public class MapFragment extends Fragment
         setAllMarkers();
     }
 
-//    public void markerClicked();
+    @Override
+    public void onClick(View v) {
+        Intent intent = new Intent(getActivity(), PersonActivity.class);
 
+        String personID = personInFocus.getPersonID();
+
+        intent.putExtra(PersonActivity.EXTRA_PERSON_ID, personID);
+        startActivity(intent);
+    }
 }
