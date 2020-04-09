@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -111,49 +110,7 @@ public class MapFragment extends Fragment
     }
 
     public float getMarkerColor(Event singleEvent) {
-        String eventType = singleEvent.getEventType();
-        String[] eventTypes = programMemory.getEventTypes();
-
-        int numOfColors = 10;
-
-
-        boolean colorNumFound = false;
-        int i = 0;
-        int colorIndex = 0;
-
-        while(!colorNumFound) {
-            if(eventType.equals(eventTypes[i])) {
-                colorIndex = i;
-                colorNumFound = true;
-            } else if (i >= numOfColors && eventType.equals(eventTypes[i])) {
-                colorIndex = i % numOfColors;
-                colorNumFound = true;
-            }
-            i++;
-        }
-
-        switch (colorIndex) {
-            case 0:
-                return BitmapDescriptorFactory.HUE_RED;
-            case 1:
-                return BitmapDescriptorFactory.HUE_BLUE;
-            case 2:
-                return BitmapDescriptorFactory.HUE_VIOLET;
-            case 3:
-                return BitmapDescriptorFactory.HUE_GREEN;
-            case 4:
-                return BitmapDescriptorFactory.HUE_MAGENTA;
-            case 5:
-                return BitmapDescriptorFactory.HUE_ORANGE;
-            case 6:
-                return BitmapDescriptorFactory.HUE_AZURE;
-            case 7:
-                return BitmapDescriptorFactory.HUE_ROSE;
-            case 8:
-                return BitmapDescriptorFactory.HUE_CYAN;
-            default:
-                return BitmapDescriptorFactory.HUE_YELLOW;
-        }
+        return programMemory.getMarkerColor(singleEvent);
     }
 
     /** Called when the user clicks a marker. */
