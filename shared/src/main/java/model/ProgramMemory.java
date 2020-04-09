@@ -2,6 +2,9 @@ package model;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +58,8 @@ public class ProgramMemory {
                 lifeEvents.add(singleEvent);
             }
         }
+
+        lifeEvents = orderEventList(lifeEvents, personIdInFocus);
 
         return lifeEvents;
     }
@@ -151,12 +156,61 @@ public class ProgramMemory {
             addSpouse(personInFocus, singlePerson, returnMe);
         }
 
-        returnMe = orderList(returnMe, personInFocus.getPersonID());
+        returnMe = orderPersonList(returnMe, personInFocus.getPersonID());
 
         return returnMe;
     }
 
-    public List<Person> orderList(List<Person> orderMe, String selfID) {
+    public List<Event> orderEventList(List<Event> orderMe, String selfID) {
+        List<Event> orderedList = new ArrayList<Event>();
+
+        // Add Birth Event First (if exists)
+        for(Event singleEvent: orderMe) {
+            if(singleEvent.getEventType().toLowerCase().equals("birth")) {
+                orderedList.add(singleEvent);
+            }
+        }
+
+        List<Event> uncertainEvents = new ArrayList<Event>();
+
+        // Add non-birth/non-death events
+        for(Event singleEvent: orderMe) {
+            if(!singleEvent.getEventType().toLowerCase().equals("birth") &&
+               !singleEvent.getEventType().toLowerCase().equals("death")) {
+                    uncertainEvents.add(singleEvent);
+            }
+        }
+
+        // Sort non-birth/non-death events by data
+        // Sort by eventType normalized to lower-case if same date exists
+        Collections.sort(uncertainEvents, new SortByDateOrEventType());
+
+        // Add the ordered non-birth/non-death events to the orderedList
+        orderedList.addAll(uncertainEvents);
+
+        // Add Death Event (if exists)
+        for(Event singleEvent: orderMe) {
+            if(singleEvent.getEventType().toLowerCase().equals("death")) {
+                orderedList.add(singleEvent);
+            }
+        }
+
+        return orderedList;
+    }
+
+    class SortByDateOrEventType implements Comparator<Event> {
+        // Used for sorting Event dates in ascending order
+        // Sorts Events in ascending order if the dates are the same
+        public int compare(Event a, Event b) {
+            if(a.getYear() != b.getYear()) {
+                return a.getYear() - b.getYear();
+            } else {
+                return a.getEventType().compareToIgnoreCase(b.getEventType());
+            }
+        }
+    }
+
+    public List<Person> orderPersonList(List<Person> orderMe, String selfID) {
         List<Person> orderedList = new ArrayList<Person>();
 
         // Add Father (if Exists)

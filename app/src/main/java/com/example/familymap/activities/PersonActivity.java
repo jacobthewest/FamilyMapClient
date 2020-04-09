@@ -232,7 +232,7 @@ public class PersonActivity extends AppCompatActivity {
 
             TextView lifeEventID = lifeEventView.findViewById(R.id.lifeEventID);
             String eventID = lifeEvents.get(childPosition).getEventID();
-            lifeEventID.setText(eventID);
+            lifeEventID.setTag(eventID);
 
             TextView lifeEventName = lifeEventView.findViewById(R.id.lifeEventName);
             String fullName = programMemory.getFullNameByEventIdAndGender(eventID, personInFocus.getGender());
@@ -257,7 +257,7 @@ public class PersonActivity extends AppCompatActivity {
             familyMemberName.setText(family.get(childPosition).getFirstName() + " " + family.get(childPosition).getLastName());
 
             TextView familyMemberPersonID = familyView.findViewById(R.id.familyMemberPersonID);
-            familyMemberPersonID.setText(family.get(childPosition).getPersonID());
+            familyMemberPersonID.setTag(family.get(childPosition).getPersonID());
 
             TextView familyMemberRelation = familyView.findViewById(R.id.familyMemberRelation);
             String relationship = programMemory.getRelationship(family.get(childPosition).getPersonID(), this.personInFocus.getPersonID());
@@ -268,10 +268,12 @@ public class PersonActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     Intent intent = new Intent(PersonActivity.this ,PersonActivity.class);
 
-                    String personID = v.findViewById(R.id.familyMemberPersonID).toString();
+                    String personID = (String) v.findViewById(R.id.familyMemberPersonID).getTag();
 
                     intent.putExtra(PersonActivity.EXTRA_PERSON_ID, personID);
+                    //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
+                    finish();
                 }
             });
         }
@@ -324,8 +326,6 @@ public class PersonActivity extends AppCompatActivity {
                     return new IconDrawable(this.personActivity,
                             FontAwesomeIcons.fa_map_marker).colorRes(R.color.yellow).sizeDp(markerDp);
                 //BitmapDescriptorFactory.HUE_YELLOW;
-
-
             }
         }
 
