@@ -1,10 +1,12 @@
 package com.example.familymap.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.PointerIcon;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -20,7 +22,8 @@ import com.joanzapata.iconify.fonts.FontAwesomeModule;
 
 import model.ProgramMemory;
 
-public class MainActivity extends AppCompatActivity implements LoginFragment.Listener {
+public class MainActivity extends AppCompatActivity
+        implements LoginFragment.Listener, MenuItem.OnMenuItemClickListener {
 
     private FragmentManager fm;
     private Fragment fragment;
@@ -32,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Lis
 
         Iconify.with(new FontAwesomeModule());
 
+        //setListeners();
         setContentView(R.layout.activity_main);
 
         this.fm = getSupportFragmentManager();
@@ -65,10 +69,46 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Lis
             MenuItem search = menu.findItem(R.id.search);
             MenuItem settings = menu.findItem(R.id.settings);
 
+            settings.setOnMenuItemClickListener(this);
+            search.setOnMenuItemClickListener(this);
+
             search.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_search).colorRes(R.color.white).actionBarSize());
             settings.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_gear).colorRes(R.color.white).actionBarSize());
         }
 
         return true;
     }
+
+    public void settingsClicked() {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
+
+    public void searchClicked() {
+        Intent intent = new Intent(this, SearchActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.settings:
+                settingsClicked();
+                return true;
+            case R.id.search:
+                searchClicked();
+                return true;
+        }
+
+        return false;
+    }
+
+//    public void setListeners() {
+//        MenuItem search = menu.findItem(R.id.search);
+//        MenuItem settings = menu.findItem(R.id.settings);
+//
+//
+//        LinearLayout linearLayout = this.view.findViewById(R.id.personDetailsOnMap);
+//        linearLayout.setOnClickListener(this);
+//    }
 }

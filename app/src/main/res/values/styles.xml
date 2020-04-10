@@ -20,5 +20,13 @@
         <item name="android:gravity">center</item>
     </style>
 
+    <style name="settingsTextView">
+        <item name="android:padding">8dp</item>
+    </style>
+
+    <style name="settingsSwitch">
+        <item name="android:gravity">left</item>
+    </style>
+
 
 </resources>
