@@ -20,12 +20,20 @@
         <item name="android:gravity">center</item>
     </style>
 
-    <style name="settingsTextView">
-        <item name="android:padding">8dp</item>
+    <style name="settingsTextViewTop">
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingLeft">16dp</item>
+    </style>
+
+    <style name="settingsTextViewBottom">
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:paddingLeft">16dp</item>
     </style>
 
     <style name="settingsSwitch">
-        <item name="android:gravity">left</item>
+        <item name="android:layout_marginRight">8dp</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:layout_width">50dp</item>
     </style>
 
 

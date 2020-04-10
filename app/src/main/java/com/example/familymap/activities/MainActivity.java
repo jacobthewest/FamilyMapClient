@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity
                 .add(R.id.fragmentContainer, this.fragment).commit();
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if(this.programMemory.isLoggedIn()) {

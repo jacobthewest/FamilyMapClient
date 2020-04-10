@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import com.example.familymap.R;
 import com.example.familymap.activities.MainActivity;
 import com.example.familymap.activities.PersonActivity;
+import com.example.familymap.activities.SettingsActivity;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
