@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.familymap.R;
+import com.example.familymap.activities.MainActivity;
 import com.example.familymap.activities.PersonActivity;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -45,6 +46,11 @@ public class MapFragment extends Fragment
 
     public MapFragment() {
         // Required empty public constructor
+        this.eventInFocus = null;
+    }
+
+    public MapFragment(String eventIdInFocus) {
+        this.eventInFocus = getEventByID(eventIdInFocus);
     }
 
     @Override
@@ -60,6 +66,10 @@ public class MapFragment extends Fragment
 
         initializeViews();
         setListeners();
+
+        if(this.eventInFocus != null) {
+            setEventViews();
+        }
 
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -86,8 +96,14 @@ public class MapFragment extends Fragment
 
             addMarker(eventLocation, singleEvent);
 
-            if(singleEvent.equals(userBirth)) {
-                focusOnUserBirth(eventLocation);
+            if(this.eventInFocus == null) {
+                if(singleEvent.equals(userBirth)) {
+                    focusOnEvent(eventLocation);
+                }
+            } else {
+                if (singleEvent.getEventID().equals(this.eventInFocus.getEventID())) {
+                    focusOnEvent(eventLocation);
+                }
             }
         }
     }
@@ -121,6 +137,19 @@ public class MapFragment extends Fragment
         //Integer eventIdAsInt = (Integer) marker.getTag();
         String eventId = marker.getTag().toString();
 
+        setMarkerInFocus(eventId);
+
+        // Return false to indicate that we have not consumed the event and that we wish
+        // for the default behavior to occur (which is for the camera to move such that the
+        // marker is centered and for the marker's info window to open, if it has one).
+        return false;
+    }
+
+    public void setEventViews() {
+        setMarkerInFocus(this.eventInFocus.getEventID());
+    }
+
+    public void setMarkerInFocus(String eventId) {
         Event clickedEvent = getEventByID(eventId);
         Person tempPerson = getPersonByPersonID(clickedEvent.getPersonID());
 
@@ -145,15 +174,9 @@ public class MapFragment extends Fragment
         TextView textView2 = this.view.findViewById(R.id.event_details);
         textView2.setText(
                 clickedEvent.getEventType().toUpperCase() + ": "
-                + clickedEvent.getCity() + ", " + clickedEvent.getCountry()
-                + " (" + clickedEvent.getYear() + ")"
+                        + clickedEvent.getCity() + ", " + clickedEvent.getCountry()
+                        + " (" + clickedEvent.getYear() + ")"
         );
-
-
-        // Return false to indicate that we have not consumed the event and that we wish
-        // for the default behavior to occur (which is for the camera to move such that the
-        // marker is centered and for the marker's info window to open, if it has one).
-        return false;
     }
 
     public Person getPersonByPersonID(String personID) {
@@ -187,10 +210,15 @@ public class MapFragment extends Fragment
         return null;
     }
 
-    public void focusOnUserBirth(LatLng eventLocation) {
+    public void focusOnEvent(LatLng eventLocation) {
 
         //map.animateCamera(CameraUpdateFactory.newLatLng(eventLocation));
-        CameraPosition cameraPosition = new CameraPosition.Builder().target(eventLocation).zoom(3).build();
+        CameraPosition cameraPosition;
+        if(this.eventInFocus == null) {
+            cameraPosition = new CameraPosition.Builder().target(eventLocation).zoom(3).build();
+        } else {
+            cameraPosition = new CameraPosition.Builder().target(eventLocation).zoom(14).build();
+        }
         CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
         //map.moveCamera(cameraUpdate);
         map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));

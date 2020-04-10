@@ -2,6 +2,7 @@ package com.example.familymap.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
@@ -42,7 +43,6 @@ public class PersonActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Family Map: Person Details");
-
 
         String personIdInFocus = getIntent().getExtras().getString(EXTRA_PERSON_ID);
         this.personInFocus = programMemory.getPersonById(personIdInFocus);
@@ -242,6 +242,13 @@ public class PersonActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Toast.makeText(PersonActivity.this, "Going to Event View Alright?", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(PersonActivity.this, EventActivity.class);
+
+                    String eventID = (String) v.findViewById(R.id.lifeEventID).getTag();
+
+                    intent.putExtra(EventActivity.EXTRA_EVENT_ID, eventID);
+                    startActivity(intent);
+                    finish();
                 }
             });
         }
@@ -266,12 +273,11 @@ public class PersonActivity extends AppCompatActivity {
             familyView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(PersonActivity.this ,PersonActivity.class);
+                    Intent intent = new Intent(PersonActivity.this, PersonActivity.class);
 
                     String personID = (String) v.findViewById(R.id.familyMemberPersonID).getTag();
 
                     intent.putExtra(PersonActivity.EXTRA_PERSON_ID, personID);
-                    //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                     finish();
                 }

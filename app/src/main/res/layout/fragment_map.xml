@@ -42,12 +42,8 @@
             <TextView
                 android:id="@+id/eventPersonName"
                 android:layout_width="match_parent"
-                android:layout_height="78dp"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginBottom="0dp"
                 android:gravity="center"
                 android:paddingTop="32dp"
                 android:text="Click on a marker to see event details"
@@ -57,15 +53,10 @@
             <TextView
                 android:id="@+id/event_details"
                 android:layout_width="match_parent"
-                android:layout_height="98dp"
+                android:layout_height="wrap_content"
                 android:layout_gravity="top"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginBottom="8dp"
                 android:gravity="center"
-                android:paddingBottom="16dp"
-                android:text=""
+                android:paddingBottom="32dp"
                 android:textAlignment="center"
                 android:textSize="18sp" />
 
